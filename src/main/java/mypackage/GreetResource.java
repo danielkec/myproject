@@ -2,6 +2,7 @@
 package mypackage;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -13,6 +14,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseEventSink;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -38,11 +40,6 @@ public class GreetResource {
         this.msgBean = msgBean;
     }
 
-    /**
-     * Process send.
-     *
-     * @param msg message to process
-     */
     @Path("/send/{msg}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -50,12 +47,6 @@ public class GreetResource {
         msgBean.process(msg);
     }
 
-    /**
-     * Consume event.
-     *
-     * @param eventSink sink
-     * @param sse       event
-     */
     @GET
     @Path("sse")
     @Produces(MediaType.SERVER_SENT_EVENTS)
@@ -63,11 +54,14 @@ public class GreetResource {
         msgBean.addSink(eventSink);
     }
 
-    /**
-     * Return a wordly greeting message.
-     *
-     * @return {@link JsonObject}
-     */
+    @GET
+    @Path("sse-broadcaster")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    public void registerBroadcaster(@Context SseEventSink eventSink, @Context Sse sse) {
+        Objects.requireNonNull(sse);
+        Objects.requireNonNull(eventSink);
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject getDefaultMessage() {
