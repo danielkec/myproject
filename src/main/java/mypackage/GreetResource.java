@@ -2,6 +2,7 @@
 package mypackage;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -31,12 +32,21 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class GreetResource {
     private static final JsonBuilderFactory JSON = Json.createBuilderFactory(Collections.emptyMap());
 
+    private CarsBean carsBean;
     private final String message;
     private final MsgProcessingBean msgBean;
+    private final static List<Car> CARS = List.of(
+            new Car(5, "7AM 4200"),
+            new Car(3, "7AM 4201"),
+            new Car(7, "7AM 4202"),
+            new Car(5, "7AM 4203"),
+            new Car(3, "7AM 4204")
+    );
 
     @Inject
-    public GreetResource(MsgProcessingBean msgBean, @ConfigProperty(name = "app.greeting") String message) {
-        this.message = message;
+    public GreetResource(MsgProcessingBean msgBean, CarsBean carsBean) {
+        this.carsBean = carsBean;
+        this.message = "test";
         this.msgBean = msgBean;
     }
 
@@ -64,10 +74,22 @@ public class GreetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JsonObject getDefaultMessage() {
-        String msg = String.format("%s %s!", message, "World");
-        return JSON.createObjectBuilder()
-                .add("message", msg)
-                .build();
+    @Path("cars")
+    public List<Car> getCars() {
+        return CARS;
+    }
+
+    @Path("/cars/{vin}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Car getCar(@PathParam("vin") String vin) {
+        return CARS.stream().filter(car -> car.getVin().contains(vin)).findFirst().get();
+    }
+
+    @Path("/client/{vin}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Car getClientCall(@PathParam("vin") String vin) {
+        return carsBean.callClient(vin);
     }
 }
