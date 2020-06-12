@@ -17,8 +17,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.sse.Sse;
 import javax.ws.rs.sse.SseEventSink;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 /**
  * A simple JAX-RS resource to greet you. Examples:
  * <p>
@@ -35,8 +33,8 @@ public class GreetResource {
     private final MsgProcessingBean msgBean;
 
     @Inject
-    public GreetResource(MsgProcessingBean msgBean, @ConfigProperty(name = "app.greeting") String message) {
-        this.message = message;
+    public GreetResource(MsgProcessingBean msgBean) {
+        this.message = "greeting";
         this.msgBean = msgBean;
     }
 
